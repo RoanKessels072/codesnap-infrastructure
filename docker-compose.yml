@@ -1,0 +1,172 @@
+version: '3.8'
+
+services:
+  nats:
+    image: nats:latest
+    ports:
+      - "4222:4222"
+      - "8222:8222"
+    volumes:
+      - ./nats/nats.conf:/etc/nats/nats.conf
+    command: ["-c", "/etc/nats/nats.conf"]
+    networks:
+      - codesnap-network
+
+  postgres-users:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: users_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-users-data:/var/lib/postgresql/data
+    networks:
+      - codesnap-network
+
+  postgres-exercises:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: exercises_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres-exercises-data:/var/lib/postgresql/data
+    networks:
+      - codesnap-network
+
+  postgres-attempts:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: attempts_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5434:5432"
+    volumes:
+      - postgres-attempts-data:/var/lib/postgresql/data
+    networks:
+      - codesnap-network
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:latest
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres-users:5432/keycloak_db
+      KC_DB_USERNAME: postgres
+      KC_DB_PASSWORD: postgres
+    ports:
+      - "8080:8080"
+    command: start-dev
+    depends_on:
+      - postgres-users
+    networks:
+      - codesnap-network
+
+  prometheus:
+    image: prom/prometheus:latest
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-data:/prometheus
+    ports:
+      - "9090:9090"
+    networks:
+      - codesnap-network
+
+  grafana:
+    image: grafana/grafana:latest
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning
+      - ./grafana/dashboards:/var/lib/grafana/dashboards
+      - grafana-data:/var/lib/grafana
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_USERS_ALLOW_SIGN_UP: false
+    ports:
+      - "3000:3000"
+    depends_on:
+      - prometheus
+    networks:
+      - codesnap-network
+
+  api-gateway:
+    build: ../codesnap-api-gateway
+    ports:
+      - "5000:5000"
+    environment:
+      NATS_URL: nats://nats:4222
+      KEYCLOAK_URL: http://keycloak:8080
+      PORT: 5000
+    depends_on:
+      - nats
+      - keycloak
+    networks:
+      - codesnap-network
+
+  user-service:
+    build: ../codesnap-user-service
+    environment:
+      NATS_URL: nats://nats:4222
+      DATABASE_URL: postgresql://postgres:postgres@postgres-users:5432/users_db
+    depends_on:
+      - nats
+      - postgres-users
+    networks:
+      - codesnap-network
+
+  exercise-service:
+    build: ../codesnap-exercise-service
+    environment:
+      NATS_URL: nats://nats:4222
+      DATABASE_URL: postgresql://postgres:postgres@postgres-exercises:5432/exercises_db
+    depends_on:
+      - nats
+      - postgres-exercises
+    networks:
+      - codesnap-network
+
+  attempt-service:
+    build: ../codesnap-attempt-service
+    environment:
+      NATS_URL: nats://nats:4222
+      DATABASE_URL: postgresql://postgres:postgres@postgres-attempts:5432/attempts_db
+    depends_on:
+      - nats
+      - postgres-attempts
+    networks:
+      - codesnap-network
+
+  code-execution-service:
+    build: ../codesnap-code-execution-service
+    environment:
+      NATS_URL: nats://nats:4222
+    depends_on:
+      - nats
+    networks:
+      - codesnap-network
+
+  ai-service:
+    build: ../codesnap-ai-service
+    environment:
+      NATS_URL: nats://nats:4222
+      GOOGLE_API_KEY: ${GOOGLE_API_KEY}
+    depends_on:
+      - nats
+    networks:
+      - codesnap-network
+
+volumes:
+  postgres-users-data:
+  postgres-exercises-data:
+  postgres-attempts-data:
+  prometheus-data:
+  grafana-data:
+
+networks:
+  codesnap-network:
+    driver: bridge

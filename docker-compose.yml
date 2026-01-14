@@ -7,7 +7,7 @@ services:
       - "8222:8222"
     volumes:
       - ./nats/nats.conf:/etc/nats/nats.conf
-    command: ["-c", "/etc/nats/nats.conf"]
+    command: [ "-c", "/etc/nats/nats.conf" ]
     networks:
       - codesnap-network
 
@@ -22,48 +22,6 @@ services:
       - "5435:5432"
     volumes:
       - postgres-keycloak-data:/var/lib/postgresql/data
-    networks:
-      - codesnap-network
-
-  postgres-users:
-    image: postgres:15
-    container_name: postgres-users
-    environment:
-      POSTGRES_DB: users_db
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres-users-data:/var/lib/postgresql/data
-    networks:
-      - codesnap-network
-
-  postgres-exercises:
-    image: postgres:15
-    container_name: postgres-exercises
-    environment:
-      POSTGRES_DB: exercises_db
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-    ports:
-      - "5433:5432"
-    volumes:
-      - postgres-exercises-data:/var/lib/postgresql/data
-    networks:
-      - codesnap-network
-
-  postgres-attempts:
-    image: postgres:15
-    container_name: postgres-attempts
-    environment:
-      POSTGRES_DB: attempts_db
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-    ports:
-      - "5434:5432"
-    volumes:
-      - postgres-attempts-data:/var/lib/postgresql/data
     networks:
       - codesnap-network
 
@@ -115,6 +73,16 @@ services:
     networks:
       - codesnap-network
 
+  locust:
+    image: locustio/locust
+    ports:
+      - "8089:8089"
+    volumes:
+      - ./locust:/mnt/locust
+    command: -f /mnt/locust/locustfile.py
+    networks:
+      - codesnap-network
+
 volumes:
   postgres-users-data:
   postgres-exercises-data:
@@ -122,6 +90,7 @@ volumes:
   postgres-keycloak-data:
   prometheus-data:
   grafana-data:
+
 
 networks:
   codesnap-network:

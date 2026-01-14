@@ -2,36 +2,36 @@ global:
   scrape_interval: 15s
   evaluation_interval: 15s
   external_labels:
-    monitor: 'codesnap-monitor'
+    monitor: "codesnap-monitor"
 
 scrape_configs:
-  - job_name: 'api-gateway'
+  - job_name: "api-gateway"
     static_configs:
-      - targets: ['api-gateway:5000']
-    metrics_path: '/metrics'
+      - targets: ["api-gateway:5000"]
+    metrics_path: "/metrics"
     scrape_interval: 5s
 
-  - job_name: 'user-service'
+  - job_name: "user-service"
     static_configs:
-      - targets: ['user-service:8000']
-    metrics_path: '/metrics'
+      - targets: ["codesnap-user-service:8001"]
+    metrics_path: "/metrics"
 
-  - job_name: 'exercise-service'
+  - job_name: "exercise-service"
     static_configs:
-      - targets: ['exercise-service:8000']
-    metrics_path: '/metrics'
+      - targets: ["exercise-service:8002"]
+    metrics_path: "/metrics"
 
-  - job_name: 'attempt-service'
+  - job_name: "attempt-service"
     static_configs:
-      - targets: ['attempt-service:8000']
-    metrics_path: '/metrics'
+      - targets: ["codesnap-attempt-service:8003"]
+    metrics_path: "/metrics"
 
-  - job_name: 'code-execution-service'
+  - job_name: "code-execution-service"
     static_configs:
-      - targets: ['code-execution-service:8000']
-    metrics_path: '/metrics'
+      - targets: ["codesnap-execution-service:8004"]
+    metrics_path: "/metrics"
 
-  - job_name: 'ai-service'
+  - job_name: "ai-service"
     static_configs:
-      - targets: ['ai-service:8000']
-    metrics_path: '/metrics'
+      - targets: ["ai-service:8005"]
+    metrics_path: "/metrics"

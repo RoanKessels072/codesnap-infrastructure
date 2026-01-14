@@ -27,7 +27,6 @@ class CodeSnapUser(HttpUser):
         }
         
         try:
-            # name argument groups this request in Locust UI
             with self.client.post(url, data=data, name="/login (Keycloak)", catch_response=True) as response:
                 if response.status_code == 200:
                     return response.json().get("access_token")

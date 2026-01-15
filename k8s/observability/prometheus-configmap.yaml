@@ -1,0 +1,36 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-config
+data:
+  prometheus.yml: |
+    global:
+      scrape_interval: 15s
+    scrape_configs:
+      - job_name: 'prometheus'
+        static_configs:
+          - targets: ['localhost:9090']
+      
+      - job_name: 'api-gateway'
+        static_configs:
+          - targets: ['api-gateway:8000']
+            
+      - job_name: 'user-service'
+        static_configs:
+          - targets: ['user-service:8001']
+
+      - job_name: 'exercise-service'
+        static_configs:
+          - targets: ['exercise-service:8002']
+
+      - job_name: 'attempt-service'
+        static_configs:
+          - targets: ['attempt-service:8003']
+
+      - job_name: 'code-execution-service'
+        static_configs:
+          - targets: ['code-execution-service:8004']
+
+      - job_name: 'ai-service'
+        static_configs:
+          - targets: ['ai-service:8005']

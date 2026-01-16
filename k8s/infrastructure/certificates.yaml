@@ -1,0 +1,27 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: codesnap-fe-cert
+  namespace: default
+spec:
+  secretName: codesnap-fe-tls
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer
+  commonName: 3.64.180.31.sslip.io
+  dnsNames:
+    - 3.64.180.31.sslip.io
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: grafana-cert
+  namespace: monitoring
+spec:
+  secretName: grafana-tls-secret
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer
+  commonName: grafana.3.64.180.31.sslip.io
+  dnsNames:
+    - grafana.3.64.180.31.sslip.io

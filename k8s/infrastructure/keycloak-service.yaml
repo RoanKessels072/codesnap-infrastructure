@@ -10,6 +10,5 @@ spec:
   ports:
     - port: 8080
       targetPort: 8080
-  # Locally we can use LoadBalancer to access it easily on localhost:port
-  # On Cloud, this would often be ClusterIP if behind an Ingress
-  type: LoadBalancer
+
+  type: ClusterIP

@@ -1,0 +1,34 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: codesnap
+  namespace: argocd
+spec:
+  description: CodeSnap Application Project
+
+  # Allow deploying from any GitHub repo under RoanKessels072
+  sourceRepos:
+    - "https://github.com/RoanKessels072/*"
+
+  # Allow deploying to these namespaces
+  destinations:
+    - namespace: default
+      server: https://kubernetes.default.svc
+    - namespace: monitoring
+      server: https://kubernetes.default.svc
+    - namespace: argocd
+      server: https://kubernetes.default.svc
+
+  # Allow these cluster-scoped resources
+  clusterResourceWhitelist:
+    - group: ""
+      kind: Namespace
+    - group: cert-manager.io
+      kind: ClusterIssuer
+    - group: networking.k8s.io
+      kind: IngressClass
+
+  # Allow all namespaced resources
+  namespaceResourceWhitelist:
+    - group: "*"
+      kind: "*"

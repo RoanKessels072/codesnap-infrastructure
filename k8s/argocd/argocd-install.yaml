@@ -1,0 +1,9 @@
+# ArgoCD Installation
+#
+# This file serves as a reference. To install ArgoCD, run:
+# kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+#
+# Alternatively, you can download and commit the manifest for version control:
+# curl -o argocd-install-manifest.yaml https://raw.githubusercontent.com/argoproj/argo-cd/v2.9.3/manifests/install.yaml
+#
+# After installation, apply the custom ConfigMap and Ingress from this directory.
